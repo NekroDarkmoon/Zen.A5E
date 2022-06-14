@@ -20,7 +20,7 @@ from main.cogs.utils.db import DB
 
 # Try Import
 try:
-    import uvloop
+    import uvloop 
 except ImportError:
     pass
 else:
