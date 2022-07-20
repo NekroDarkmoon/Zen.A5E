@@ -6,7 +6,6 @@ from __future__ import annotations
 # Standard library imports
 import logging
 import re
-import string
 
 from typing import TYPE_CHECKING, Optional
 from unicodedata import category
@@ -39,14 +38,14 @@ class Compendium(commands.Cog):
 
     # ====================================================
     # Commands
-    @app_commands.command(name='background')
-    @app_commands.describe(query='Background')
-    async def background(
+    @app_commands.command(name='feat')
+    @app_commands.describe(query='Feat')
+    async def feat(
         self,
         interaction: discord.Interaction,
-        query: string
+        query: str
     ):
-        """ Looks up a background """
+        """ Looks up a feat. """
         await interaction.response.defer()
 
 
