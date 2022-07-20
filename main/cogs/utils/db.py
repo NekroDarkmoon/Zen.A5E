@@ -92,6 +92,9 @@ class DB:
     # Create Schemas
     @classmethod
     async def create_schemas(cls, conn):
+        # Extension
+        await conn.execute('CREATE EXTENSION IF NOT EXISTS pg_trgm;')
+
         sql_queries: dict = schema.tables
         ct: str = "CREATE TABLE IF NOT EXISTS"
 
@@ -101,6 +104,9 @@ class DB:
             await conn.execute(sql)
 
         # TODO: Optionally create indexes
+        sql_indexes = schema.indexes
+        for index in sql_indexes:
+            await conn.execute(index)
 
     # Get Migrations.
     @classmethod

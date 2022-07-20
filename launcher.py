@@ -32,6 +32,9 @@ else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
+BULLET_STYLE = ['-', '+', '*']
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                          Main
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -178,7 +181,8 @@ def get_feat_data(files) -> tuple[str, list[tuple[str, str]]]:
 
             # Structure for db input
             name: str = data['name']
-            description: str = md(data['data']['description'])
+            description: str = md(
+                data['data']['description'], bullets=BULLET_STYLE)
 
             sql_data.append((name, description))
 
