@@ -5,7 +5,8 @@ tables: dict = {
     'feats': f'''
         name TEXT PRIMARY KEY,
         perquisite TEXT,
-        description TEXT NOT NULL
+        description TEXT NOT NULL,
+        type TEXT
     '''
 }
 

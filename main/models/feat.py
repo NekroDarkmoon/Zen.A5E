@@ -31,20 +31,20 @@ class Feat(Source):
 
     def __init__(self, record: asyncpg.Record) -> None:
         self.name = record['name']
-        self.desc = record['description']
-
-    @property
-    def description(self):
-        return self.desc
+        self.description = record['description']
+        self.type = record['type']
 
     @classmethod
     def from_record(
-        cls, name: str,
-        description: str
+        cls,
+        name: str,
+        description: str,
+        type: str,
     ) -> Self:
         pseudo = {
             'name': name,
-            'desc': description,
+            'description': description,
+            'type': type,
         }
 
         return cls(record=pseudo)
