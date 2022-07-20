@@ -2,15 +2,17 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                         Imports
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-import asyncio
-import json
+import os
 import aiohttp
+import asyncio
 import asyncpg
 import click
+import json
 import contextlib
 import discord
 import logging
 import sys
+import traceback
 
 from logging.handlers import RotatingFileHandler
 
@@ -20,9 +22,9 @@ from main.cogs.utils.db import DB
 
 # Try Import
 try:
-    import uvloop 
+    import uvloop
 except ImportError:
-    pass
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -110,11 +112,76 @@ async def run_bot():
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                         Imports
+#                         Database
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@main.group(short_help='database stuff', options_metavar='[options]')
+def db():
+    pass
+
+
+@db.command(short_help='Update the database.')
+@click.option('-q', '--quiet', help='Reduce output verbosity.', is_flag=True)
+@click.pass_context
+def update_db(ctx, quiet):
+    """ Update the database with the latest json. """
+    asyncio.run(_update_db('feats', quiet))
+
+
+async def _update_db(compendium, quiet):
+    # TODO: Add downloading new files
+
+    # Open db connection
+    try:
+        pool = await DB.create_pool(config.uri)
+    except Exception:
+        click.echo(
+            f'Could not create PostgreSQL connection pool.\n{traceback.format_exc()}', err=True)
+        return
+
+    # Get files
+    files = set()
+
+    if compendium is None:
+        ...
+    else:
+        filenames = [file for file in os.listdir(
+            f'./.packs/{compendium}') if file.endswith('.json')]
+
+        for f in filenames:
+            files.add(f'./.packs/{compendium}/{f}')
+
+    # Parse JSON and add
+    feat_sql, feat_data = get_feat_data(files)
+    await pool.executemany(feat_sql, feat_data)
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                         Imports
+#                     Compendium Readers
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def get_feat_data(files) -> tuple[str, list[tuple[str, str]]]:
+    """ Generates sql for feats from files"""
+
+    sql: str = ''' INSERT INTO feats(name, description)
+                   VALUES($1, $2)
+                   ON CONFLICT (name)
+                   DO UPDATE SET description=$2
+               '''
+    sql_data: list[tuple[str, str]] = list()
+
+    for file in files:
+        with open(file, 'r', encoding='utf8') as reader:
+            print(file)
+            data = json.load(reader)
+
+            # Structure for db input
+            name: str = data['name']
+            description: str = data['data']['description']
+
+            sql_data.append((name, description))
+
+    return (sql, sql_data)
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                         Imports
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

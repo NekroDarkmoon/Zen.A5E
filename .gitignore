@@ -131,3 +131,4 @@ dmypy.json
 # Custom files
 main/settings/config.py
 main/settings/*.json
+.packs/
