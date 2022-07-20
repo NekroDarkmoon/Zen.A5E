@@ -91,7 +91,7 @@ class Zen(commands.AutoShardedBot):
     def __init__(self) -> None:
         allowed_mentions = discord.AllowedMentions(
             roles=False, everyone=False, users=True)
-        intents = discord.Intents.none()
+        intents = discord.Intents.default()
         super().__init__(
             command_prefix=config.prefix,
             description=description,
