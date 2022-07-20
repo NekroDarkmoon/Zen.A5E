@@ -7,14 +7,16 @@ import aiohttp
 import asyncio
 import asyncpg
 import click
+import discord
 import json
 import contextlib
-import discord
 import logging
 import sys
 import traceback
 
 from logging.handlers import RotatingFileHandler
+
+from markdownify import markdownify as md
 
 import main.settings.config as config
 from main.Zen import Zen
@@ -176,7 +178,7 @@ def get_feat_data(files) -> tuple[str, list[tuple[str, str]]]:
 
             # Structure for db input
             name: str = data['name']
-            description: str = data['data']['description']
+            description: str = md(data['data']['description'])
 
             sql_data.append((name, description))
 
