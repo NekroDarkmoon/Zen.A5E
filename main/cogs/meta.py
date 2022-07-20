@@ -322,9 +322,9 @@ class Meta(commands.Cog):
             await ctx.send(str(error))
 
     @app_commands.command()
-    async def ping(self, ctx: Context) -> None:
+    async def ping(self, interaction: discord.Interaction) -> None:
         """Ping commands are stupid."""
-        await ctx.send("Ping commands are stupid.")
+        await interaction.response("Ping commands are stupid.")
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
