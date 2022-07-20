@@ -107,6 +107,7 @@ class Zen(commands.AutoShardedBot):
 
         self.client_id: str = config.client_id
         self.dev_guilds: set(config.guilds)
+        self.if_sync = config.sync
         self.resumes: defaultdict[int,
                                   list[datetime.datetime]] = defaultdict(list)
         self.identifies: defaultdict[int,
@@ -143,6 +144,12 @@ class Zen(commands.AutoShardedBot):
         # Set Status
         self.activity = discord.Activity(
             name=config.activity, type=discord.ActivityType.watching)
+
+        # Sync commands
+        if (self.if_sync):
+            await self.tree.sync()
+            print('Synced to tree')
+            log.info('Synced slash commands to tree.')
 
     @property
     def owner(self) -> discord.User:
