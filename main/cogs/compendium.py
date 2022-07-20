@@ -2,12 +2,13 @@
 #                         Imports
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 from __future__ import annotations
+import asyncio
 
 # Standard library imports
 import logging
 import re
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 # Third party imports
 import discord  # noqa
@@ -17,6 +18,7 @@ from discord.ext import commands
 
 # Local application imports
 from main.models.feat import Feat
+from main.cogs.utils.paginator import SimplePages
 
 # Local application imports
 if TYPE_CHECKING:
@@ -26,6 +28,29 @@ if TYPE_CHECKING:
 
 
 log = logging.getLogger(__name__)
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                         LookUp Pages
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class LookupEntry(TypedDict):
+    name: str
+
+
+class LookupPageEntry:
+    __slots__ = ('name')
+
+    def __init__(self, entry: LookupEntry) -> None:
+        self.name: str = entry['name']
+
+    def __str__(self) -> str:
+        return f'{self.name}'
+
+
+class LookupPages(SimplePages):
+    def __init__(self, entries: list[LookupEntry], *, ctx: Context, per_page: int = 15):
+        converted = [LookupPageEntry(entry) for entry in entries]
+        super().__init__(converted, ctx=ctx, per_page=per_page)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -50,48 +75,60 @@ class Compendium(commands.Cog):
     ):
         """ Looks up a feat. """
         await interaction.response.defer()
-        record = await self.lookup_entity('feats', query)
+        record = await self.lookup_entity(interaction, 'feats', query)
+
+        if record is None:
+            return await interaction.edit_original_message(
+                content='No results Founds.')
 
         feat_model = Feat(record)
         return await interaction.edit_original_message(embed=feat_model.embed)
 
     # ====================================================
     # Lookup Utils
-    async def lookup_entity(self, entity: str, query: str) -> Record:
+    async def lookup_entity(
+        self, interaction: discord.Interaction, entity: str, query: str
+    ) -> Optional[Record]:
+        """ Looks up an entity in the database. """
+
         conn = self.bot.pool
         query = query.lower()
 
         sql = f'''SELECT * FROM {entity} WHERE LOWER(name)=$1'''
         row: Record = await conn.fetchrow(sql, query)
 
-        if row is None:
-            sql = f'''
-                SELECT      * 
-                FROM        {entity}
-                WHERE       name % $1
-                ORDER BY    similarity(name, $1) DESC
-                LIMIT       5
-            '''
-
-            rows: list[Record] = await conn.fetch(sql, query)
-            row = await self.disambiguate(rows, query)
-        else:
+        if row is not None:
             return row
 
-    async def disambiguate(self, rows, query):
-        choices = [r['name'] for r in rows]
+        # Perform Fuzzy Search
+        sql = f'''
+            SELECT      * 
+            FROM        {entity}
+            WHERE       name % $1
+            ORDER BY    similarity(name, $1) DESC
+            LIMIT       5
+            '''
 
-        if choices is None or len(choices) == 0:
-            raise RuntimeError('Query not Found.')
+        rows: list[Record] = await conn.fetch(sql, query)
 
-        names = '\n'.join(r['name'] for r in rows)
-        raise RuntimeError(f'Tag not found. Did you mean...\n{names}')
+        # Return None if empty
+        if rows is None or len(rows) == 0:
+            return None
+
+        choices: list[str] = [r['name'] for r in rows]
+        ctx: Context = await commands.Context.from_interaction(interaction)
+
+        # Present Choices
+        p = LookupPages(entries=rows, ctx=ctx)
+        p.embed.set_author(name=ctx.author.display_name)
+        await p.start()
+
+        await asyncio.sleep(10)
+        return rows[1]
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                         Setup
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
 async def setup(bot: Zen):
     await bot.add_cog(Compendium(bot))
