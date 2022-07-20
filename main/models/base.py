@@ -8,7 +8,7 @@ import logging
 from abc import ABC
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('__name__')
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
