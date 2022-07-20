@@ -3,10 +3,16 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 from __future__ import annotations
 
+# Standard library imports
 import asyncpg
+import discord
 import logging
 
 from typing import TYPE_CHECKING
+
+
+# Local application imports
+from main.models.base import Source
 
 
 if TYPE_CHECKING:
@@ -19,13 +25,13 @@ log = logging.getLogger('__name__')
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                          Feat
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class Feat:
+class Feat(Source):
     """ Model for feats entity type"""
     document_type = 'feat'
 
     def __init__(self, record: asyncpg.Record) -> None:
         self.name = record['name']
-        self.desc = record['desc']
+        self.desc = record['description']
 
     @property
     def description(self):
@@ -45,3 +51,11 @@ class Feat:
 
     def __hash__(self) -> int:
         return hash(self.name)
+
+    @property
+    def embed(self):
+        return discord.Embed(
+            title=self.name,
+            description=self.description,
+            color=discord.Color.random()
+        )

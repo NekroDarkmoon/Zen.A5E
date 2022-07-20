@@ -24,7 +24,8 @@ from main.cogs.utils.db import DB
 try:
     import uvloop
 except ImportError:
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    pass
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 

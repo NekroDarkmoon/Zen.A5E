@@ -17,6 +17,9 @@ from discord import app_commands
 from discord.ext import commands
 
 # Local application imports
+from main.models.feat import Feat
+
+# Local application imports
 if TYPE_CHECKING:
     from main.Zen import Zen
     from main.cogs.utils.context import Context
@@ -47,6 +50,19 @@ class Compendium(commands.Cog):
     ):
         """ Looks up a feat. """
         await interaction.response.defer()
+
+        sql = '''SELECT name, description FROM feats
+                 WHERE name=$1
+              '''
+        record = await self.bot.pool.fetchrow(sql, query)
+
+        if record is None:
+            e = discord.Embed(title='Error', color=discord.Colour.random())
+            e.description = 'Nothing Found'
+            return await interaction.edit_original_message(embed=e)
+
+        feat_model = Feat(record)
+        return await interaction.edit_original_message(embed=feat_model.embed)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
