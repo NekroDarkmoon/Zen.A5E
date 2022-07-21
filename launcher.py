@@ -3,6 +3,7 @@
 #                         Imports
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 import os
+from typing import Optional
 import aiohttp
 import asyncio
 import asyncpg
@@ -144,33 +145,33 @@ async def _update_db(compendium, quiet):
             f'Could not create PostgreSQL connection pool.\n{traceback.format_exc()}', err=True)
         return
 
-    # Get files
-    files = set()
+    # Update Feats
+    feats = [file for file in os.listdir(
+        f'./.packs/feats') if file.endswith('.json')]
+    files = {f'./.packs/feats/{f}' for f in feats}
+    sql, data = get_feat_data(files)
+    await pool.executemany(sql, data)
 
-    if compendium is None:
-        ...
-    else:
-        filenames = [file for file in os.listdir(
-            f'./.packs/{compendium}') if file.endswith('.json')]
-
-        for f in filenames:
-            files.add(f'./.packs/{compendium}/{f}')
-
-    # Parse JSON and add
-    feat_sql, feat_data = get_feat_data(files)
-    await pool.executemany(feat_sql, feat_data)
+    synergyFeats = [file for file in os.listdir(
+        f'./.packs/synergyFeats') if file.endswith('.json')]
+    files = {f'./.packs/synergyFeats/{f}' for f in synergyFeats}
+    sql, data = get_feat_data(files, 'synergy')
+    await pool.executemany(sql, data)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                     Compendium Readers
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def get_feat_data(files) -> tuple[str, list[tuple[str, str]]]:
+def get_feat_data(
+    files: list[str], type: Optional[str] = None
+) -> tuple[str, list[tuple[str, str]]]:
     """ Generates sql for feats from files"""
 
-    sql: str = ''' INSERT INTO feats(name, description)
-                   VALUES($1, $2)
+    sql: str = ''' INSERT INTO feats(name, description, type)
+                   VALUES($1, $2, $3)
                    ON CONFLICT (name)
-                   DO UPDATE SET description=$2
+                   DO UPDATE SET description=$2,
+                                 type=$3
                '''
     sql_data: list[tuple[str, str]] = list()
 
@@ -184,7 +185,7 @@ def get_feat_data(files) -> tuple[str, list[tuple[str, str]]]:
             description: str = md(
                 data['data']['description'], bullets=BULLET_STYLE)
 
-            sql_data.append((name, description))
+            sql_data.append((name, description, type))
 
     return (sql, sql_data)
 

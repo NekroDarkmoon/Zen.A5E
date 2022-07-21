@@ -32,7 +32,7 @@ class Feat(Source):
     def __init__(self, record: asyncpg.Record) -> None:
         self.name = record['name']
         self.description = record['description']
-        # self.type = record['type']
+        self.type = record['type']
 
     @classmethod
     def from_record(
@@ -44,7 +44,7 @@ class Feat(Source):
         pseudo = {
             'name': name,
             'description': description,
-            # 'type': type,
+            'type': type,
         }
 
         return cls(record=pseudo)
@@ -53,9 +53,11 @@ class Feat(Source):
         return hash(self.name)
 
     @property
-    def embed(self):
-        return discord.Embed(
-            title=self.name,
+    def embed(self) -> discord.Embed:
+        e = discord.Embed(
+            title=f'{self.name} {"(Synergy Feat)" if self.type == "synergy" else ""}',
             description=self.description,
             color=discord.Color.random()
         )
+
+        return e
