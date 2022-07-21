@@ -164,10 +164,17 @@ async def _update_db(compendium, quiet):
     sql, data = get_spell_data(files)
     await pool.executemany(sql, data)
 
+    rareSpells = [file for file in os.listdir(
+        f'./.packs/rareSpells') if file.endswith('.json')]
+    files = {f'./.packs/rareSpells/{s}' for s in rareSpells}
+    sql, data = get_spell_data(files, 'rare')
+    await pool.executemany(sql, data)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                      Feat Readers
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 def get_spell_data(
     files: list[str], type: Optional[str] = None
 ) -> tuple[str, list[tuple[str, str]]]:
