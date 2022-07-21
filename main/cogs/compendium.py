@@ -140,7 +140,8 @@ class Compendium(commands.Cog):
 
         spell_model = Spell(record)
         return await interaction.edit_original_message(
-            embed=spell_model.gen_embed(), view=None
+            embed=spell_model.gen_embed(interaction.user),
+            view=None
         )
 
     # ====================================================
