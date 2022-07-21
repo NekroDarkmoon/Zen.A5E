@@ -31,6 +31,63 @@ log = logging.getLogger(__name__)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                        Lookup View
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class LookupEntry(TypedDict):
+    name: str
+
+
+class LookupPageEntry:
+    __slots__ = ('name')
+
+    def __init__(self, entry: LookupEntry) -> None:
+        self.name: str = entry['name']
+
+    def __str__(self) -> str:
+        return f'{self.name}'
+
+
+class LookupView(discord.ui.View):
+    def __init__(self, interaction:  discord.Interaction, data: list[Record]):
+        super().__init__()
+        self.value = None
+
+        # Display Data
+        self._lookup_data = [LookupPageEntry(entry) for entry in data]
+        self._interaction = interaction
+        self._embed = discord.Embed(title='Multiple Matches')
+
+        # Add SelectOptions to UI
+        choices = [i.name for i in self._lookup_data]
+        for c in choices:
+            self.select.add_option(label=c, value=c)
+
+    async def display_suggestions(self):
+        entries = list()
+
+        for idx, entry in enumerate(self._lookup_data):
+            entries.append(f'**{idx + 1}** - {entry}')
+
+        desc = 'Pick one of the following suggestions from the menu. \n'
+        desc += '\n'.join(entries)
+        self._embed.description = desc
+        self._embed.colour = discord.Colour.random()
+
+    @discord.ui.select(
+        placeholder='Select an option...',
+        min_values=1,
+        max_values=1,
+        row=0,
+        options=[]
+    )
+    async def select(
+        self, interaction: discord.Interaction, select: discord.ui.Select
+    ):
+        self.value = select.values[0]
+        self.stop()
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                         Compendium
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Compendium(commands.Cog):
@@ -83,7 +140,7 @@ class Compendium(commands.Cog):
             FROM        {entity}
             WHERE       name % $1
             ORDER BY    similarity(name, $1) DESC
-            LIMIT       5
+            LIMIT       15
             '''
 
         rows: list[Record] = await conn.fetch(sql, query)
@@ -92,24 +149,16 @@ class Compendium(commands.Cog):
         if rows is None or len(rows) == 0:
             return None
 
-        choices: list[str] = [r['name'] for r in rows]
         ctx: Context = await commands.Context.from_interaction(interaction)
 
         # Present Choices
-        p = LookupPages(entries=rows, ctx=ctx)
-        p.embed.set_author(name=ctx.author.display_name)
-        await p.start()
 
-        def check(message: discord.Message):
-            return message.author == ctx.author and message.content.isdigit()
+        view = LookupView(interaction, rows)
+        view._embed.set_author(name=ctx.author.display_name)
+        await interaction.edit_original_message(view=view)
+        await view.wait()
 
-        try:
-            msg = await self.bot.wait_for('message', timeout=60.0, check=check)
-        except Exception as e:
-            print(e)
-            await ctx.channel.send('👎')
-
-        print(msg)
+        print(view.value)
 
         await asyncio.sleep(10)
         return rows[1]
