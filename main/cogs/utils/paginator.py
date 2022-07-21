@@ -6,20 +6,19 @@ from __future__ import annotations
 
 # Standard library imports
 import asyncio
-from email import message
 import logging
 import os
 import sys
 import traceback
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict
 
 # Third party imports
 import discord
-from tabulate import tabulate
 
 from discord.ext import commands
 from discord.ext.commands import Paginator as CommandPaginator
 from discord.ext import menus
+
 
 # Local application imports
 # Enabling local imports
@@ -29,6 +28,7 @@ sys.path.append(BASE_PATH)
 
 if TYPE_CHECKING:
     from .context import Context
+    from main.Zen import Zen
 
 
 log = logging.getLogger(__name__)
@@ -324,30 +324,78 @@ class SimplePages(ZenPages):
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                   Tabular Pages Source
+#                      Lookup Pages Source
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class TabularPagesSource(menus.ListPageSource):
-    def __init__(self, entries, headers: list[str], *, per_page: int) -> None:
-        self.headers = headers
+class LookupPagesSource(menus.ListPageSource):
+    def __init__(self, entries, *, per_page: int) -> None:
         super().__init__(entries, per_page=per_page)
 
     async def format_page(self, menu, entries) -> discord.Embed:
-        content = tabulate(entries, self.headers, tablefmt='simple',
-                           stralign='left', numalign='center')
+        pages = []
+        for index, entry in enumerate(entries, start=menu.current_page * self.per_page):
+            pages.append(f'**{index + 1}** - {entry}')
 
         maximum = self.get_max_pages()
         if maximum > 1:
             footer = f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} entries)'
             menu.embed.set_footer(text=footer)
 
-        menu.embed.description = f'```{content}```'
+        menu.embed.description = 'Pick a choice from the suggestions that you were looking for.\n'
+        menu.embed.description += '\n'.join(pages)
+        # menu.embed.add_field(name='Suggestions', value=f'{"\n".join(pages)}')
         return menu.embed
 
 
+class LookupSelectMenu(discord.ui.Select['LookupPages']):
+    def __init__(self, options: list[Any], bot: Zen) -> None:
+        super().__init__(
+            placeholder='Select an option...',
+            min_values=1,
+            max_values=1,
+            row=0,
+        )
+        self.options_to_add: list[Any] = options
+        self.bot: Zen = bot
+        self.__fill_options()
+
+    def __fill_options(self) -> None:
+        for option in self.options_to_add:
+            print(option)
+            self.add_option(
+                label=option['id'], value=option['id'], description=option['name'])
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        assert self.view is not None
+        value = self.values[0]
+        print((value))
+        return value
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                         Imports
+#                        Lookup Pages
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class TabularPages(ZenPages):
-    def __init__(self, entries, *, ctx: Context, headers: list[str], per_page: int = 12) -> None:
-        super().__init__(TabularPagesSource(entries, headers, per_page=per_page), ctx=ctx)
-        self.embed = discord.Embed(color=discord.Color.random())
+class LookupEntry(TypedDict):
+    name: str
+
+
+class LookupPageEntry:
+    __slots__ = ('name')
+
+    def __init__(self, entry: LookupEntry) -> None:
+        self.name: str = entry['name']
+
+    def __str__(self) -> str:
+        return f'{self.name}'
+
+
+class LookupPages(ZenPages):
+    def __init__(self, entries, *, ctx: Context, per_page: int = 12):
+        converted = [LookupPageEntry(entry) for entry in entries]
+        super().__init__(SimplePageSource(converted, per_page=per_page), ctx=ctx)
+        self.embed = discord.Embed(colour=discord.Colour.random())
+
+        options = [{'id': idx, 'name': e.name}
+                   for idx, e in enumerate(converted)]
+        self.clear_items()
+        self.add_item(LookupSelectMenu(options, ctx.bot))
+        self.fill_items()

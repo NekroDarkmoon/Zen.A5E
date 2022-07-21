@@ -15,10 +15,10 @@ import discord  # noqa
 from async_lru import alru_cache
 from discord import app_commands
 from discord.ext import commands
+from main.cogs.utils.paginator import LookupPages
 
 # Local application imports
 from main.models.feat import Feat
-from main.cogs.utils.paginator import SimplePages
 
 # Local application imports
 if TYPE_CHECKING:
@@ -28,29 +28,6 @@ if TYPE_CHECKING:
 
 
 log = logging.getLogger(__name__)
-
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                         LookUp Pages
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class LookupEntry(TypedDict):
-    name: str
-
-
-class LookupPageEntry:
-    __slots__ = ('name')
-
-    def __init__(self, entry: LookupEntry) -> None:
-        self.name: str = entry['name']
-
-    def __str__(self) -> str:
-        return f'{self.name}'
-
-
-class LookupPages(SimplePages):
-    def __init__(self, entries: list[LookupEntry], *, ctx: Context, per_page: int = 15):
-        converted = [LookupPageEntry(entry) for entry in entries]
-        super().__init__(converted, ctx=ctx, per_page=per_page)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -122,6 +99,17 @@ class Compendium(commands.Cog):
         p = LookupPages(entries=rows, ctx=ctx)
         p.embed.set_author(name=ctx.author.display_name)
         await p.start()
+
+        def check(message: discord.Message):
+            return message.author == ctx.author and message.content.isdigit()
+
+        try:
+            msg = await self.bot.wait_for('message', timeout=60.0, check=check)
+        except Exception as e:
+            print(e)
+            await ctx.channel.send('👎')
+
+        print(msg)
 
         await asyncio.sleep(10)
         return rows[1]
