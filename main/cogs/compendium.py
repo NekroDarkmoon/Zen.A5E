@@ -15,7 +15,6 @@ import discord  # noqa
 from async_lru import alru_cache
 from discord import app_commands
 from discord.ext import commands
-from main.cogs.utils.paginator import LookupPages
 
 # Local application imports
 from main.models.feat import Feat
@@ -62,27 +61,29 @@ class LookupView(discord.ui.View):
         for c in choices:
             self.select.add_option(label=c, value=c)
 
-    async def display_suggestions(self):
+    def get_suggestions(self) -> discord.Embed:
         entries = list()
 
         for idx, entry in enumerate(self._lookup_data):
             entries.append(f'**{idx + 1}** - {entry}')
 
-        desc = 'Pick one of the following suggestions from the menu. \n'
+        desc = 'Pick one of the following suggestions from the menu. \n\n'
         desc += '\n'.join(entries)
         self._embed.description = desc
         self._embed.colour = discord.Colour.random()
+
+        return self._embed
 
     @discord.ui.select(
         placeholder='Select an option...',
         min_values=1,
         max_values=1,
-        row=0,
-        options=[]
+        row=0
     )
     async def select(
         self, interaction: discord.Interaction, select: discord.ui.Select
     ):
+        await interaction.response.defer()
         self.value = select.values[0]
         self.stop()
 
@@ -116,7 +117,7 @@ class Compendium(commands.Cog):
                 content='No results Founds.')
 
         feat_model = Feat(record)
-        return await interaction.edit_original_message(embed=feat_model.embed)
+        return await interaction.edit_original_message(embed=feat_model.embed, view=None)
 
     # ====================================================
     # Lookup Utils
@@ -152,20 +153,28 @@ class Compendium(commands.Cog):
         ctx: Context = await commands.Context.from_interaction(interaction)
 
         # Present Choices
-
         view = LookupView(interaction, rows)
         view._embed.set_author(name=ctx.author.display_name)
-        await interaction.edit_original_message(view=view)
+
+        await interaction.edit_original_message(
+            embed=view.get_suggestions(), view=view
+        )
         await view.wait()
 
-        print(view.value)
+        value = view.value
+        if value is None:
+            return None
 
-        await asyncio.sleep(10)
-        return rows[1]
+        for r in rows:
+            if r['name'] == value:
+                return r
 
+        return None
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                         Setup
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 async def setup(bot: Zen):
     await bot.add_cog(Compendium(bot))
