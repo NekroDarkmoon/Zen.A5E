@@ -150,6 +150,10 @@ class Compendium(commands.Cog):
         if rows is None or len(rows) == 0:
             return None
 
+        # Return first if only 1 found
+        if len(rows) == 1:
+            return rows[0]
+
         ctx: Context = await commands.Context.from_interaction(interaction)
 
         # Present Choices
