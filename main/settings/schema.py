@@ -7,6 +7,13 @@ tables: dict = {
         perquisite TEXT,
         description TEXT NOT NULL,
         type TEXT
+    ''',
+
+    'spells': f'''
+        name TEXT PRIMARY KEY,
+        description TEXT NOT NULL,
+        type TEXT,
+        extra JSON DEFAULT '{{}}'::jsonb
     '''
 }
 
