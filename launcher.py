@@ -158,14 +158,73 @@ async def _update_db(compendium, quiet):
     sql, data = get_feat_data(files, 'synergy')
     await pool.executemany(sql, data)
 
+    spells = [file for file in os.listdir(
+        f'./.packs/spells') if file.endswith('.json')]
+    files = {f'./.packs/spells/{s}' for s in spells}
+    sql, data = get_spell_data(files)
+    await pool.executemany(sql, data)
+
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                     Compendium Readers
+#                      Feat Readers
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def get_spell_data(
+    files: list[str], type: Optional[str] = None
+) -> tuple[str, list[tuple[str, str]]]:
+    """ Generates sql for spells from files"""
+    print('====================================')
+    print(f'Spells - {"{type}" if type == "rare" else ""}')
+    print('====================================')
+    sql: str = ''' INSERT INTO spells(name, description, type, extra)
+                   VALUES($1, $2, $3, $4::jsonb)
+                   ON CONFLICT (name)
+                   DO UPDATE SET description=$2,
+                                 type=$3,
+                                 extra=$4::jsonb
+               '''
+    sql_data: list[tuple[str, str]] = list()
+
+    for file in files:
+        with open(file, 'r', encoding='utf8') as reader:
+            print(file)
+            data = json.load(reader)
+
+            # Structure for db input
+            name: str = data['name']
+            description: str = md(
+                data['data']['description'], bullets=BULLET_STYLE)
+            system = data['data']
+
+            extras = {
+                'area': system['area'],
+                'castingTime': system['activation'],
+                'classes': None,
+                'components': system['components'],
+                'concentration': system['concentration'],
+                'duration': system['duration'],
+                'materials': f"{system['materials']} {'which the spell consumes.' if system['materials'] else ''}",
+                'level': system['level'],
+                'primarySchool': system['schools']['primary'],
+                'range': system['range'],
+                'savingThrow': f"{system['save']['targetAbility']} {'halves' if 'half damage' in system['save']['onSave'].lower() else 'negates'}",
+                'secondarySchool': system['schools']['secondary'],
+            }
+
+            sql_data.append((name, description, type, extras))
+
+    return (sql, sql_data)
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                      Feat Readers
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_feat_data(
     files: list[str], type: Optional[str] = None
 ) -> tuple[str, list[tuple[str, str]]]:
     """ Generates sql for feats from files"""
+    print('====================================')
+    print(f'Feats - {"{type}" if type == "synergy" else ""}')
+    print('====================================')
 
     sql: str = ''' INSERT INTO feats(name, description, type)
                    VALUES($1, $2, $3)
