@@ -145,6 +145,13 @@ async def _update_db(compendium, quiet):
             f'Could not create PostgreSQL connection pool.\n{traceback.format_exc()}', err=True)
         return
 
+    # Update Conditions
+    conditions = [file for file in os.listdir(
+        f'./.packs/conditions') if file.endswith('.json')]
+    files = {f'./.packs/conditions/{c}' for c in conditions}
+    sql, data = get_condition_data(files)
+    await pool.executemany(sql, data)
+
     # Update Feats
     feats = [file for file in os.listdir(
         f'./.packs/feats') if file.endswith('.json')]
@@ -177,6 +184,37 @@ async def _update_db(compendium, quiet):
     files = {f'./.packs/rareSpells/{s}' for s in rareSpells}
     sql, data = get_spell_data(files, 'rare')
     await pool.executemany(sql, data)
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                      Feat Readers
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def get_condition_data(files: list[str]) -> tuple[str, list[tuple[str, str]]]:
+    """ Generates sql for feats from files"""
+    print('====================================')
+    print(f'Conditions')
+    print('====================================')
+
+    sql: str = ''' INSERT INTO conditions(name, description)
+                   VALUES($1, $2)
+                   ON CONFLICT (name)
+                   DO UPDATE SET description=$2
+               '''
+    sql_data: list[tuple[str, str]] = list()
+
+    for file in files:
+        with open(file, 'r', encoding='utf8') as reader:
+            print(file)
+            data = json.load(reader)
+
+            # Structure for db input
+            name: str = data['name']
+            description: str = md(
+                data['description'], bullets=BULLET_STYLE)
+
+            sql_data.append((name, description))
+
+    return (sql, sql_data)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
