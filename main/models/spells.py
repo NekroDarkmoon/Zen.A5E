@@ -166,4 +166,21 @@ class Spell(Source):
         # Add Meta
         e.add_field(name='Meta', value=meta, inline=False)
 
+        # Add Description
+        if len(self.description) > 1024:
+            chunks = chunk_text(self.description, max_chunk_size=1000)
+            e.add_field(name='Description',
+                        value=chunks[0], inline=False)
+
+            embeds.append(e)
+            for chunk in chunks[1:]:
+                embeds.append(
+                    discord.Embed(description=chunk, color=e.color)
+                )
+
+        else:
+            e.add_field(name='Description',
+                        value=self.description, inline=False)
+            embeds.append(e)
+
         return embeds
