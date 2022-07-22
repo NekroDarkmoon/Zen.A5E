@@ -143,6 +143,47 @@ def text_color(content: str, color: str = None) -> str:
         return f'```ini\n[{content}]```'
     else:
         return f'```\n{content}```'
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                         Owner
+#                         Chunk
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def chunk_text(
+    text: str,
+    max_chunk_size: int = 1024,
+    chunk_on=("\n\n", "\n", ". ", ", ", " "),
+    chunker_i=0
+) -> list[str]:
+    """
+    Recursively chunks *text* into a list of str, with each element no longer than *max_chunk_size*.
+    Prefers splitting on the elements of *chunk_on*, in order.
+    """
+
+    if len(text) <= max_chunk_size:
+        return [text]
+
+    if chunker_i >= len(chunk_on):  # we have no more preferred chunk_on characters
+        # optimization: instead of merging a thousand characters, just use list slicing
+        return [text[:max_chunk_size], *chunk_text(text[max_chunk_size:], max_chunk_size, chunk_on, chunker_i + 1)]
+
+    # Split on the current character
+    chunks = list()
+    split_char = chunk_on[chunker_i]
+    for chunk in text.split(split_char):
+        chunk = f"{chunk}{split_char}"
+        if len(chunk) > max_chunk_size:  # this chunk needs to be split more, recurse
+            chunks.extend(chunk_text(
+                chunk, max_chunk_size, chunk_on, chunker_i + 1))
+        # this chunk can be merged
+        elif chunks and len(chunk) + len(chunks[-1]) <= max_chunk_size:
+            chunks[-1] += chunk
+        else:
+            chunks.append(chunk)
+
+    # if the last chunk is just the split_char, yeet it
+    if chunks[-1] == split_char:
+        chunks.pop()
+
+    # remove extra split_char from last chunk
+    chunks[-1] = chunks[-1][: -len(split_char)]
+    return chunks
