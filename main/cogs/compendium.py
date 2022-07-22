@@ -156,7 +156,7 @@ class Compendium(commands.Cog):
     ):
         """ Looks up a maneuver. """
         await interaction.response.defer()
-        record = await self.lookup_entity(interaction, 'spells', query)
+        record = await self.lookup_entity(interaction, 'maneuvers', query)
 
         if record is None:
             return await interaction.edit_original_message(

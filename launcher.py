@@ -241,7 +241,7 @@ def get_maneuver_data(files: list[str]) -> tuple[str, list[tuple[str, str]]]:
             system = data['data']
 
             extras = {
-                'activation': system['action'],
+                'activation': system['activation'],
                 'degree': system['degree'],
                 'exertionCost': system['exertionCost'],
                 'tradition': system['tradition']
