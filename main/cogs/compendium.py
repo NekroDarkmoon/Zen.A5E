@@ -15,6 +15,7 @@ import discord  # noqa
 from async_lru import alru_cache
 from discord import app_commands
 from discord.ext import commands
+from main.models.condition import Condition
 
 # Local application imports
 from main.models.feat import Feat
@@ -141,7 +142,7 @@ class Compendium(commands.Cog):
             return await interaction.edit_original_message(
                 content='No results Founds.')
 
-        condition_model = Feat(record)
+        condition_model = Condition(record)
         return await interaction.edit_original_message(
             embed=condition_model.embed, view=None
         )
