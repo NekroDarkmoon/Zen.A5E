@@ -54,4 +54,41 @@ class ManeuverTraditions(Enum):
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Maneuver(Source):
     """ Model for the spells entity type"""
-    document_type = 'spell'
+    document_type = 'maneuver'
+
+    def __init__(self, record: asyncpg.Record) -> None:
+        self.name: str = record['name']
+        self.description: str = record['description']
+        self.extras: ManeuverExtras = json.loads(record['extra'])
+
+    @classmethod
+    def from_record(
+        cls,
+        name: str,
+        description: str,
+        extra: dict[Any]
+    ) -> Self:
+        pseudo = {
+            'name': name,
+            'description': description,
+            'extra': extra
+        }
+
+        return cls(record=pseudo)
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def gen_embed(self, author: discord.Member) -> list[discord.Embed]:
+        """ Generates embed for maneuver."""
+
+        embeds: list[discord.Embed] = list()
+        extras = self.extras
+        e = discord.Embed(title=self.name, color=discord.Colour.random())
+        e.set_author(name=author.display_name, icon_url=author.display_avatar)
+
+        # Add degree and tradition
+        level = ordinal(extras['degree'])
+        tradition = ManeuverTraditions[extras['tradition']].value
+        e.description = f"*{level} degree, {tradition}*"
+
