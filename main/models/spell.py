@@ -89,6 +89,9 @@ class Spell(Source):
 
         return cls(record=pseudo)
 
+    def __hash__(self) -> int:
+        return hash(self.name)
+
     def gen_embed(self, author: discord.Member) -> list[discord.Embed]:
         """ Generates embed for spell."""
 
