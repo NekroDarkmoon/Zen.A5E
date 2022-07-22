@@ -213,8 +213,10 @@ def get_spell_data(
                 'level': system['level'],
                 'primarySchool': system['schools']['primary'],
                 'range': system['range'],
-                'savingThrow': f"{system['save']['targetAbility']} {'halves' if 'half damage' in system['save']['onSave'].lower() else 'negates'}",
+                'ritual': system['ritual'],
+                'savingThrow': f"{system['save']['targetAbility'].capitalize()} {'Halves' if 'half damage' in system['save']['onSave'].lower() else 'Negates'}",
                 'secondarySchool': system['schools']['secondary'],
+                'target': system['target'],
             }
 
             sql_data.append((name, description, type, extras))
