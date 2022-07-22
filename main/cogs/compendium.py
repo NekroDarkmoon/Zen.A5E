@@ -18,7 +18,8 @@ from discord.ext import commands
 
 # Local application imports
 from main.models.feat import Feat
-from main.models.spells import Spell
+from main.models.maneuver import Maneuver
+from main.models.spell import Spell
 
 # Local application imports
 if TYPE_CHECKING:
@@ -121,6 +122,28 @@ class Compendium(commands.Cog):
 
         feat_model = Feat(record)
         return await interaction.edit_original_message(embed=feat_model.embed, view=None)
+
+    # ________________ Maneuvers _______________________
+    @app_commands.command(name='maneuver')
+    @app_commands.describe(query='Maneuver')
+    async def maneuver(
+        self,
+        interaction: discord.Interaction,
+        query: str
+    ):
+        """ Looks up a maneuver. """
+        await interaction.response.defer()
+        record = await self.lookup_entity(interaction, 'spells', query)
+
+        if record is None:
+            return await interaction.edit_original_message(
+                content='No results Founds.')
+
+        maneuver_model = Maneuver(record)
+        return await interaction.edit_original_message(
+            embeds=maneuver_model.gen_embed(interaction.user),
+            view=None
+        )
 
     # ________________ Spells _______________________
     @app_commands.command(name='spell')
