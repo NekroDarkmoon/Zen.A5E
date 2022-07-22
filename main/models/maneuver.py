@@ -11,7 +11,7 @@ import json
 import logging
 
 from typing import TYPE_CHECKING, Any, Optional, TypedDict
-from main.cogs.utils.formats import chunk_text
+from main.cogs.utils.formats import chunk_text, ordinal
 
 
 # Local application imports
@@ -92,3 +92,34 @@ class Maneuver(Source):
         tradition = ManeuverTraditions[extras['tradition']].value
         e.description = f"*{level} degree, {tradition}*"
 
+        meta = ''
+
+        # Add actionType
+        action = extras['activation']
+        meta += f"\n**Action Cost**: {action['cost']} {action['type']} {action['reactionTrigger'] if len(action['reactionTrigger']) > 0 else ''}"
+
+        # Add exertion cost
+        exertion = extras['exertionCost']
+        meta += f"\n**Exertion Cost**: {exertion} points"
+
+        # Add Meta
+        e.add_field(name='Meta', value=meta, inline=False)
+
+        # Add Description
+        if len(self.description) > 1024:
+            chunks = chunk_text(self.description, max_chunk_size=1000)
+            e.add_field(name='Description',
+                        value=chunks[0], inline=False)
+
+            embeds.append(e)
+            for chunk in chunks[1:]:
+                embeds.append(
+                    discord.Embed(description=chunk, color=e.color)
+                )
+
+        else:
+            e.add_field(name='Description',
+                        value=self.description, inline=False)
+            embeds.append(e)
+
+        return embeds
