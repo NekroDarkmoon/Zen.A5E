@@ -1,0 +1,68 @@
+{
+	"name": "Ring of Free Action",
+	"type": "object",
+	"img": "icons/svg/item-bag.svg",
+	"data": {
+		"ability": "",
+		"actionOptions": [],
+		"activation": {
+			"cost": "",
+			"type": "",
+			"reactionTrigger": ""
+		},
+		"attack": {
+			"bonus": "",
+			"critThreshold": 20,
+			"type": ""
+		},
+		"area": {
+			"shape": "",
+			"size": ""
+		},
+		"check": {
+			"ability": "str"
+		},
+		"damage": [],
+		"description": "<p><strong>Crafting Components:</strong> Vial of water from the Plane of Water</p><hr class=\"a5e-rule u-my-md\"><p>While wearing this ring, you are not slowed by difficult terrain, and magic cannot cause you to be restrained, paralyzed, or slow your movement.<br></p>",
+		"duration": {
+			"unit": "",
+			"value": ""
+		},
+		"healing": [],
+		"proficient": true,
+		"range": [],
+		"save": {
+			"dc": "",
+			"onSave": "",
+			"targetAbility": ""
+		},
+		"source": "",
+		"target": {
+			"quantity": "",
+			"type": ""
+		},
+		"uses": {
+			"value": null,
+			"max": "",
+			"per": null
+		},
+		"ammunitionProperties": [],
+		"armorCategory": "",
+		"armorProperties": [],
+		"attuned": false,
+		"bulky": false,
+		"equipped": false,
+		"materialProperties": [],
+		"objectType": "jewelry",
+		"plotItem": false,
+		"price": "2500",
+		"quantity": 1,
+		"rarity": "rare",
+		"requiresAttunement": true,
+		"weaponProperties": [],
+		"weight": "0"
+	},
+	"effects": [],
+	"flags": {},
+	"_id": "4m0nkmlavfr422jb"
+}
