@@ -101,4 +101,27 @@ class Spell(Source):
         )
         e.set_author(name=author.display_name, icon_url=author.display_avatar)
 
+        # Add level and type
+        def ordinal(n): return "%d%s" % (
+            n, "tsnrhtdd"[(n//10 % 10 != 1)*(n % 10 < 4)*n % 10::4])
+
+        level = ordinal(extras['level'])
+        schools = ', '.join(extras['secondarySchool'])
+        desc = f"*{level}-level {extras['primarySchool']}; {schools}*"
+        e.description = desc
+
+        meta = ''
+        # Add Casting time
+        cast_time = extras['castingTime']
+        meta += f"\n**Casting Time**: {cast_time['cost']} {cast_time['type']} {cast_time['reactionTrigger'] if len(cast_time['reactionTrigger']) > 0 else ''}"
+        if extras['ritual']:
+            meta += f" *(Ritual)*"
+
+        # Add Range
+        spellRange = extras['range'][0]
+        if spellRange in ['short', 'medium', 'long']:
+            meta += f'\n**Range**: {spellRange.capitalize()} *({SpellRanges[spellRange].value}ft.)*'
+        else:
+            meta += f'\n**Range**: {spellRange.capitalize()}'
+
         return embeds
