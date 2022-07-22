@@ -155,4 +155,15 @@ class Spell(Source):
 
         meta += f"\n**Components**: {', '.join(filter(None, [vocal, seen, mat, conc]))} {materials}"
 
+        # Add Duration
+        dur = extras['duration']
+        dur = f"{dur['value']} {dur['unit'].capitalize() if dur['unit'] != 'instantaneous' else dur['unit'].capitalize()}"
+        meta += f"\n**Duration**: {dur}"
+
+        # Add Saving Throw
+        meta += f"\n**Saving Throw**: {extras['savingThrow'].capitalize()}"
+
+        # Add Meta
+        e.add_field(name='Meta', value=meta, inline=False)
+
         return embeds
