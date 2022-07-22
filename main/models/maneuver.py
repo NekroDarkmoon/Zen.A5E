@@ -26,6 +26,30 @@ log = logging.getLogger('__name__')
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                       Spell Data
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class ManeuverExtras(TypedDict):
+    activation: dict[str, Any]
+    degree: int
+    exertionCost: int
+    tradition: str
+
+
+class ManeuverTraditions(Enum):
+    adamantMountain = 'Adamant Mountain'
+    bitingZephyr = 'Biting Zephyr'
+    mirrorsGlint = 'Mirrors Glint'
+    mistAndShade = 'Mist And Shade'
+    rapidCurrent = 'Rapid Current'
+    razorsEdge = 'Razors Edge'
+    sanguineKnot = 'Sanguine Knot'
+    spiritedSteed = 'Spirited Steed'
+    temperedIron = 'Tempered Iron'
+    toothAndClaw = 'Tooth And Claw'
+    unendingWheel = 'Unending Wheel'
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                          Spell
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Maneuver(Source):
