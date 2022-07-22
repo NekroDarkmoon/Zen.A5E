@@ -1,4 +1,4 @@
 {
   "name": "prone",
-  "description": "<p><li>A prone creature's only movement option is to crawl (every 1 foot of movement while crawling costs 1 extra foot) until it stands up.</li><li>Standing up requires half a creature’s movement.</li><li>A prone creature makes melee attack rolls with disadvantage.</li><li>An attack roll against a prone creature is made with advantage if the attacker is within 5 feet. Otherwise, the attack roll is made with disadvantage.</li></p>"
+  "description": "<p><ul><li>A prone creature's only movement option is to crawl (every 1 foot of movement while crawling costs 1 extra foot) until it stands up.</li><li>Standing up requires half a creature’s movement.</li><li>A prone creature makes melee attack rolls with disadvantage.</li><li>An attack roll against a prone creature is made with advantage if the attacker is within 5 feet. Otherwise, the attack roll is made with disadvantage.</li></ul></p>"
 }

@@ -1,4 +1,4 @@
 {
   "name": "incapacitated",
-  "description": "<p><li>An incapacitated creature can’t take actions, bonus actions, or reactions.</li></p>"
+  "description": "<p><ul><li>An incapacitated creature can’t take actions, bonus actions, or reactions.</li></ul></p>"
 }

@@ -1,4 +1,4 @@
 {
   "name": "deafened",
-  "description": "<p><li>A deafened creature can't hear and automatically fails ability checks that require hearing.</li></p>"
+  "description": "<p><ul><li>A deafened creature can't hear and automatically fails ability checks that require hearing.</ul></li></p>"
 }

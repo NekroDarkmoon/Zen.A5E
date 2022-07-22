@@ -1,4 +1,4 @@
 {
   "name": "grappled",
-  "description": "<p><li>A grappled creature's Speed becomes 0, and it can't benefit from bonuses to movement speeds.</li><li>If the grappler becomes incapacitated the condition ends.</li><li>If an effect removes the grappled creature from the reach of the grappler or grappling effect (such as when a creature is shoved away by the Doubleteam combat maneuver) the condition ends.</li></p>"
+  "description": "<p><ul><li>A grappled creature's Speed becomes 0, and it can't benefit from bonuses to movement speeds.</li><li>If the grappler becomes incapacitated the condition ends.</li><li>If an effect removes the grappled creature from the reach of the grappler or grappling effect (such as when a creature is shoved away by the Doubleteam combat maneuver) the condition ends.</li></ul></p>"
 }

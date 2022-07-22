@@ -1,5 +1,5 @@
 {
     "name": "slowed",
-    "description": "<p><li>A slowed creature's Speed is halved.</li><li>A slowed creature takes a −2 penalty to AC and Dexterity saving throws.</li><li>A slowed creature cannot take reactions.</li><li>On its turn, a slowed creature can take either an action or a bonus action, not both. In addition, it can't make more than one melee or ranged attack during its turn.</li></p>" 
+    "description": "<p><ul><li>A slowed creature's Speed is halved.</li><li>A slowed creature takes a −2 penalty to AC and Dexterity saving throws.</li><li>A slowed creature cannot take reactions.</li><li>On its turn, a slowed creature can take either an action or a bonus action, not both. In addition, it can't make more than one melee or ranged attack during its turn.</li></ul></p>" 
 
 }

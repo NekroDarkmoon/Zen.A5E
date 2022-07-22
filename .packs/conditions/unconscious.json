@@ -1,5 +1,5 @@
 {
     "name": "unconscious",
-    "description": "<p><li>An unconscious creature is incapacitated, can't move or speak, and is unaware of its surroundings.</li><li>An unconscious creature drops whatever it's holding and falls prone.</li><li>An unconscious creature automatically fails Strength and Dexterity saving throws.</li><li>Attack rolls against an unconscious creature are made with advantage.</li><li>Any attack that hits an unconscious creature is a critical hit if the attacker is within 5 feet.</li></p>"
+    "description": "<p><li><ul>An unconscious creature is incapacitated, can't move or speak, and is unaware of its surroundings.</li><li>An unconscious creature drops whatever it's holding and falls prone.</li><li>An unconscious creature automatically fails Strength and Dexterity saving throws.</li><li>Attack rolls against an unconscious creature are made with advantage.</li><li>Any attack that hits an unconscious creature is a critical hit if the attacker is within 5 feet.</li></ul></p>"
 
 }
