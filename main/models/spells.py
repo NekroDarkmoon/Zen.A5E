@@ -124,4 +124,35 @@ class Spell(Source):
         else:
             meta += f'\n**Range**: {spellRange.capitalize()}'
 
+        # Add Area
+        areaShape = extras['area']['shape']
+        if areaShape != '':
+            areaSize = ''
+
+            if areaShape == 'cone':
+                areaSize = f"{extras['area']['length']}ft"
+            elif areaShape == 'cube':
+                areaSize = f"{extras['area']['width']}ft"
+            elif areaShape == 'line':
+                areaSize = f"{extras['area']['length']}ft by {extras['area']['width']}ft"
+            else:
+                areaSize = f"{extras['area']['radius']}ft. radius"
+
+            meta += f"\n**Area**: {areaSize} {areaShape}"
+
+        # Add Target
+        target = extras['target']
+        if target['type'] != '':
+            meta += f"\n**Target**: {target['quantity']} {SpellTargets[target['type']].value}"
+
+        # Add Components
+        vocal = 'V' if extras['components']['vocalized'] else ''
+        seen = 'S' if extras['components']['seen'] else ''
+        mat = 'M' if extras['components']['material'] else ''
+        conc = 'C' if extras['concentration'] else ''
+        materials = f"({extras['materials']})" if len(
+            extras['materials']) > 1 else ''
+
+        meta += f"\n**Components**: {', '.join(filter(None, [vocal, seen, mat, conc]))} {materials}"
+
         return embeds
