@@ -11,11 +11,11 @@ import json
 import logging
 
 from typing import TYPE_CHECKING, Any, Optional, TypedDict
-from main.cogs.utils.formats import chunk_text
 
 
 # Local application imports
 from main.models.base import Source
+from main.cogs.utils.formats import chunk_text, ordinal
 
 
 if TYPE_CHECKING:
@@ -105,8 +105,6 @@ class Spell(Source):
         e.set_author(name=author.display_name, icon_url=author.display_avatar)
 
         # Add level and type
-        def ordinal(n): return "%d%s" % (
-            n, "tsnrhtdd"[(n//10 % 10 != 1)*(n % 10 < 4)*n % 10::4])
 
         level = ordinal(extras['level'])
         schools = ', '.join(extras['secondarySchool'])
