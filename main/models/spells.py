@@ -89,3 +89,16 @@ class Spell(Source):
 
         return cls(record=pseudo)
 
+    def gen_embed(self, author: discord.Member) -> list[discord.Embed]:
+        """ Generates embed for spell."""
+
+        embeds: list[discord.Embed] = list()
+
+        extras = self.extras
+        e = discord.Embed(
+            title=f'{self.name} {"(Rare)" if self.type == "rare" else ""}',
+            color=discord.Color.random()
+        )
+        e.set_author(name=author.display_name, icon_url=author.display_avatar)
+
+        return embeds
