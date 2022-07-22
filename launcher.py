@@ -158,6 +158,14 @@ async def _update_db(compendium, quiet):
     sql, data = get_feat_data(files, 'synergy')
     await pool.executemany(sql, data)
 
+    # Update Maneuvers
+    maneuvers = [file for file in os.listdir(
+        f'./.packs/maneuvers') if file.endswith('.json')]
+    files = {f'./.packs/maneuvers/{m}' for m in maneuvers}
+    sql, data = get_maneuver_data(files)
+    await pool.executemany(sql, data)
+
+    # Update Spells
     spells = [file for file in os.listdir(
         f'./.packs/spells') if file.endswith('.json')]
     files = {f'./.packs/spells/{s}' for s in spells}
@@ -170,11 +178,67 @@ async def _update_db(compendium, quiet):
     sql, data = get_spell_data(files, 'rare')
     await pool.executemany(sql, data)
 
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                      Feat Readers
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def get_feat_data(
+    files: list[str], type: Optional[str] = None
+) -> tuple[str, list[tuple[str, str]]]:
+    """ Generates sql for feats from files"""
+    print('====================================')
+    print(f'Feats - {"{type}" if type == "synergy" else ""}')
+    print('====================================')
+
+    sql: str = ''' INSERT INTO feats(name, description, type)
+                   VALUES($1, $2, $3)
+                   ON CONFLICT (name)
+                   DO UPDATE SET description=$2,
+                                 type=$3
+               '''
+    sql_data: list[tuple[str, str]] = list()
+
+    for file in files:
+        with open(file, 'r', encoding='utf8') as reader:
+            print(file)
+            data = json.load(reader)
+
+            # Structure for db input
+            name: str = data['name']
+            description: str = md(
+                data['data']['description'], bullets=BULLET_STYLE)
+
+            sql_data.append((name, description, type))
+
+    return (sql, sql_data)
 
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                      Maneuver Reader
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def get_maneuver_data(files: list[str]) -> tuple[str, list[tuple[str, str]]]:
+    """ Generates sql for spells from files"""
+    print('====================================')
+    print(f'Spells - {"{type}" if type == "rare" else ""}')
+    print('====================================')
+    sql: str = ''' INSERT INTO spells(name, description, type, extra)
+                   VALUES($1, $2, $3, $4::jsonb)
+                   ON CONFLICT (name)
+                   DO UPDATE SET description=$2,
+                                 type=$3,
+                                 extra=$4::jsonb
+               '''
+    sql_data: list[tuple[str, str]] = list()
+
+    for file in files:
+        with open(file, 'r', encoding='utf8') as reader:
+            print(file)
+            data = json.load(reader)
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                      Spell Reader
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_spell_data(
     files: list[str], type: Optional[str] = None
 ) -> tuple[str, list[tuple[str, str]]]:
@@ -220,40 +284,6 @@ def get_spell_data(
             }
 
             sql_data.append((name, description, type, extras))
-
-    return (sql, sql_data)
-
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#                      Feat Readers
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def get_feat_data(
-    files: list[str], type: Optional[str] = None
-) -> tuple[str, list[tuple[str, str]]]:
-    """ Generates sql for feats from files"""
-    print('====================================')
-    print(f'Feats - {"{type}" if type == "synergy" else ""}')
-    print('====================================')
-
-    sql: str = ''' INSERT INTO feats(name, description, type)
-                   VALUES($1, $2, $3)
-                   ON CONFLICT (name)
-                   DO UPDATE SET description=$2,
-                                 type=$3
-               '''
-    sql_data: list[tuple[str, str]] = list()
-
-    for file in files:
-        with open(file, 'r', encoding='utf8') as reader:
-            print(file)
-            data = json.load(reader)
-
-            # Structure for db input
-            name: str = data['name']
-            description: str = md(
-                data['data']['description'], bullets=BULLET_STYLE)
-
-            sql_data.append((name, description, type))
 
     return (sql, sql_data)
 
