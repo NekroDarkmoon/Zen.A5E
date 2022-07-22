@@ -219,14 +219,13 @@ def get_feat_data(
 def get_maneuver_data(files: list[str]) -> tuple[str, list[tuple[str, str]]]:
     """ Generates sql for spells from files"""
     print('====================================')
-    print(f'Spells - {"{type}" if type == "rare" else ""}')
+    print('Maneuvers')
     print('====================================')
-    sql: str = ''' INSERT INTO spells(name, description, type, extra)
-                   VALUES($1, $2, $3, $4::jsonb)
+    sql: str = ''' INSERT INTO maneuvers(name, description, extra)
+                   VALUES($1, $2, $3::jsonb)
                    ON CONFLICT (name)
                    DO UPDATE SET description=$2,
-                                 type=$3,
-                                 extra=$4::jsonb
+                                 extra=$3::jsonb
                '''
     sql_data: list[tuple[str, str]] = list()
 
@@ -234,6 +233,23 @@ def get_maneuver_data(files: list[str]) -> tuple[str, list[tuple[str, str]]]:
         with open(file, 'r', encoding='utf8') as reader:
             print(file)
             data = json.load(reader)
+
+            # Structure for db input
+            name: str = data['name']
+            description: str = md(
+                data['data']['description'], bullets=BULLET_STYLE)
+            system = data['data']
+
+            extras = {
+                'activation': system['action'],
+                'degree': system['degree'],
+                'exertionCost': system['exertionCost'],
+                'tradition': system['tradition']
+            }
+
+            sql_data.append((name, description, extras))
+
+    return (sql, sql_data)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
