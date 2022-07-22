@@ -26,6 +26,40 @@ log = logging.getLogger('__name__')
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#                       Spell Data
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class SpellExtras(TypedDict):
+    area: dict[str, Any]
+    castingTime: dict
+    classes: Optional[list[str]]
+    components: dict[str, bool]
+    concentration: bool
+    duration: dict[str, str]
+    materials: str
+    level: int
+    primarySchool: str
+    range: list[str]
+    ritual: bool
+    savingThrow: str
+    secondarySchool: list[str]
+    target: dict[str, str]
+
+
+class SpellRanges(Enum):
+    short = 30
+    medium = 60
+    long = 120
+
+
+class SpellTargets(Enum):
+    self = 'Self'
+    creature = 'Creature'
+    object = 'Object'
+    creatureObject = 'Creature or Object'
+    other = 'Other'
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                          Spell
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Spell(Source):
