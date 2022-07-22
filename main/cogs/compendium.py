@@ -121,7 +121,30 @@ class Compendium(commands.Cog):
                 content='No results Founds.')
 
         feat_model = Feat(record)
-        return await interaction.edit_original_message(embed=feat_model.embed, view=None)
+        return await interaction.edit_original_message(
+            embed=feat_model.embed, view=None
+        )
+
+    # ________________ Feats _______________________
+    @app_commands.command(name='condition')
+    @app_commands.describe(query='Condition')
+    async def condition(
+        self,
+        interaction: discord.Interaction,
+        query: str
+    ):
+        """ Looks up a condition. """
+        await interaction.response.defer()
+        record = await self.lookup_entity(interaction, 'conditions', query)
+
+        if record is None:
+            return await interaction.edit_original_message(
+                content='No results Founds.')
+
+        condition_model = Feat(record)
+        return await interaction.edit_original_message(
+            embed=condition_model.embed, view=None
+        )
 
     # ________________ Maneuvers _______________________
     @app_commands.command(name='maneuver')

@@ -15,7 +15,7 @@ tables: dict = {
     ''',
 
     'maneuvers': f'''
-        TEXT PRIMARY KEY,
+        name TEXT PRIMARY KEY,
         description TEXT NOT NULL,
         extra JSON DEFAULT '{{}}'::jsonb
     ''',
