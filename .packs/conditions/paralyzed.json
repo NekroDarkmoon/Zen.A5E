@@ -1,0 +1,4 @@
+{
+  "name": "paralyzed",
+  "description": "<p><li>A paralyzed creature is incapacitated and can't move or speak.</li><li>A paralyzed creature automatically fails Strength and Dexterity saving throws. </li><li>Attack rolls against a paralyzed creature have advantage.</li><li>Any attack that hits a paralyzed creature is a critical hit if the attacker is within 5 feet.</li></p>"
+}

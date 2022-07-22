@@ -1,0 +1,4 @@
+{
+  "name": "restrained",
+  "description": "<p><li>A restrained creature's Speed becomes 0, and it can't benefit from bonuses to speed.</li><li>Attack rolls against a restrained creature are made with advantage.</li><li>A restrained creature makes attack rolls with disadvantage.</li><li>The restrained creature has disadvantage on Dexterity saving throws.</li></p>"
+}
