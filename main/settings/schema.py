@@ -9,6 +9,17 @@ tables: dict = {
         type TEXT
     ''',
 
+    'conditions': f'''
+        name TEXT PRIMARY KEY,
+        description TEXT NOT NULL
+    ''',
+
+    'maneuvers': f'''
+        TEXT PRIMARY KEY,
+        description TEXT NOT NULL,
+        extra JSON DEFAULT '{{}}'::jsonb
+    ''',
+
     'spells': f'''
         name TEXT PRIMARY KEY,
         description TEXT NOT NULL,
