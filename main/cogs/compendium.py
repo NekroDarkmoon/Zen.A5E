@@ -118,15 +118,15 @@ class Compendium(commands.Cog):
         record = await self.lookup_entity(interaction, 'feats', query)
 
         if record is None:
-            return await interaction.edit_original_message(
+            return await interaction.edit_original_response(
                 content='No results Founds.')
 
         feat_model = Feat(record)
-        return await interaction.edit_original_message(
+        return await interaction.edit_original_response(
             embed=feat_model.embed, view=None
         )
 
-    # ________________ Feats _______________________
+    # ________________ Conditions _______________________
     @app_commands.command(name='condition')
     @app_commands.describe(query='Condition')
     async def condition(
@@ -139,11 +139,11 @@ class Compendium(commands.Cog):
         record = await self.lookup_entity(interaction, 'conditions', query)
 
         if record is None:
-            return await interaction.edit_original_message(
+            return await interaction.edit_original_response(
                 content='No results Founds.')
 
         condition_model = Condition(record)
-        return await interaction.edit_original_message(
+        return await interaction.edit_original_response(
             embed=condition_model.embed, view=None
         )
 
@@ -160,11 +160,11 @@ class Compendium(commands.Cog):
         record = await self.lookup_entity(interaction, 'maneuvers', query)
 
         if record is None:
-            return await interaction.edit_original_message(
+            return await interaction.edit_original_response(
                 content='No results Founds.')
 
         maneuver_model = Maneuver(record)
-        return await interaction.edit_original_message(
+        return await interaction.edit_original_response(
             embeds=maneuver_model.gen_embed(interaction.user),
             view=None
         )
@@ -182,11 +182,11 @@ class Compendium(commands.Cog):
         record = await self.lookup_entity(interaction, 'spells', query)
 
         if record is None:
-            return await interaction.edit_original_message(
+            return await interaction.edit_original_response(
                 content='No results Founds.')
 
         spell_model = Spell(record)
-        return await interaction.edit_original_message(
+        return await interaction.edit_original_response(
             embeds=spell_model.gen_embed(interaction.user),
             view=None
         )
@@ -232,7 +232,7 @@ class Compendium(commands.Cog):
         view = LookupView(interaction, rows)
         view._embed.set_author(name=ctx.author.display_name)
 
-        await interaction.edit_original_message(
+        await interaction.edit_original_response(
             embed=view.get_suggestions(), view=view
         )
         await view.wait()
