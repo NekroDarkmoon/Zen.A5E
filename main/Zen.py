@@ -147,9 +147,9 @@ class Zen(commands.AutoShardedBot):
 
         # Sync commands
         if (self.if_sync):
-            await self.tree.sync()
-            print('Synced to tree')
-            log.info('Synced slash commands to tree.')
+            commands = await self.tree.sync()
+            print(f'Synced {len(commands)} commands to tree')
+            log.info(f'Synced {len(commands)} commands to tree')
 
     @property
     def owner(self) -> discord.User:
